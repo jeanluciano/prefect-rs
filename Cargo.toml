@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    'prefect',
+    'prefect-macro'
+]

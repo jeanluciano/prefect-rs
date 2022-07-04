@@ -1,0 +1,23 @@
+cargo-feature = ["unboxed_closures","fn_traits" ]
+
+[package]
+name = "prefect-macro"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
+
+
+[dependencies]
+syn = {version="1.0.57",features=["full","extra-traits"]}
+quote = "1.0.8"
+proc-macro2 = "1.0"
+tokio = { version = "1", features = ["full"] }
+parking_lot = "0.12"
+tokio-util = { version = "0.7.3" }
+pin-project = "1.0"
+futures = "0.3"
+tracing = { version = "0.1", features = ["max_level_trace"] }
+libc = "0.2.0"
