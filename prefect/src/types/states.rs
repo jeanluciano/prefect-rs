@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use serde::{Deserialize, Serialize};
 
+#[derive(Debug,Deserialize,Serialize)]
 pub enum StateType {
     SCHEDULED,
     PENDING,
@@ -15,7 +17,7 @@ enum TERMINAL_STATES  {
     FAILED,
     CANCELLED
 }
-
+#[derive(Debug)]
 struct StateDetails {
     flow_run_id: Uuid,
     task_run_id: Uuid,
@@ -24,7 +26,7 @@ struct StateDetails {
     cache_key: String,
     cache_expiration: DateTime<Utc>
 }
-
+#[derive(Debug,Deserialize,Serialize)]
 pub struct State {
     id: uuid::Uuid,
     state_type: StateType,

@@ -1,16 +1,14 @@
-use crate::{engine::enter_flow_run_engine_from_flow_call, task_runners::ConcurrentTaskRunner};
 
 
 pub struct Parameters {
     test: String
 }
-
-pub struct Flow<F>
+#[derive(Debug)]
+pub struct Flow
 {
-    __fn: F,
     name: String,
     version: String,
-    task_runner: ConcurrentTaskRunner,
+    // task_runner: ConcurrentTaskRunner,
     description: String,
     timeout_seconds: Option<f32>,
     validate_parameters: bool,

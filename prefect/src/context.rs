@@ -1,28 +1,24 @@
-use crate::client::OrionClient;
+
+use tokio::sync::{RwLock};
+use std::sync::{Arc};
+// use crate::client::OrionClient;
 use crate::flows::Flow;
 use chrono::{DateTime, Utc};
-use crate::types::core::{FlowRun, TaskRun};
-use crate::task_runners::ConcurrentTaskRunner;
-use crate::tasks::Task;
+use crate::types::core::{FlowRun};
+// use crate::task_runners::ConcurrentTaskRunner;
+// use crate::tasks::Task;
+
+
 enum ContextType {
     FlowRun,
     TaskRun
 }
-
 #[derive(Debug)]
-struct RunContext {
-    start_time: DateTime<Utc>,
-    client: OrionClient
-}
-
-
-
-#[derive(Debug)]
-pub struct FlowRunContext<F> 
+pub struct FlowRunContext
 {
-    flow: Flow<F>,
-    flow_run: FlowRun<F>,
-    task_runner: ConcurrentTaskRunner,
+    flow: Flow,
+    flow_run: FlowRun,
+    // task_runner: ConcurrentTaskRunner,
     // result_storage:StorageBlock,
     // task_run_futures: Vec<PrefectFuture>,
     // subflow_states: Vec<State>,
@@ -30,18 +26,28 @@ pub struct FlowRunContext<F>
     // timeout_scope: Option<CancelScope>,
     // __var: ContextType,
     start_time: DateTime<Utc>,
-    client: OrionClient
+    // client: OrionClient
 } 
 
-#[derive(Debug)]
-pub struct TaskRunContext<F> {
-    task: Task<F>,
-    task_run: TaskRun,
-    // result_storage:StorageBlock,
-    // __var: ContextType,
-    start_time: DateTime<Utc>,
-    client: OrionClient
+impl FlowRunContext {
+    fn new(flow: Flow,flow_run: FlowRun,start_time:DateTime<Utc>) -> Arc<RwLock<FlowRunContext>> {
+        Arc::new(RwLock::new(FlowRunContext{
+            flow,
+            flow_run,
+            start_time
+        }))
+    }
 }
+
+// #[derive(Debug)]
+// pub struct TaskRunContext {
+//     task: Task,
+//     task_run: TaskRun,
+//     // result_storage:StorageBlock,
+//     // __var: ContextType,
+//     start_time: DateTime<Utc>,
+//     client: OrionClient
+// }
 
 
 

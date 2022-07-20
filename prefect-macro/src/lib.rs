@@ -105,6 +105,8 @@ pub fn task(args: TokenStream, input: TokenStream) -> TokenStream {
     })
 }
 
+
+
 #[proc_macro_attribute]
 pub fn flow(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemFn);
@@ -162,10 +164,19 @@ pub fn flow(args: TokenStream, input: TokenStream) -> TokenStream {
     let flow_name = &input.sig.ident.to_string();
     TokenStream::from(quote! {
         let #inner_ident = || {
+            let flow_metadata = Flow {
+                name: #flow_name,
+                version: "1",
+                task_runner: ConcurrentTaskRunner,
+                description: "placeholder description.",
+                timeout_seconds: None,
+                validate_parameters: false,
+            }
+            let flow_run_context = FlowRunContext::new(flow_metadata,)
 
             let exec = DedicatedExecutor::new(#excutor_name, 2);
 
-            let flow_context = exec.spawn(async move #input_block);
+            let flow_scope = exec.spawn(async move #input_block);
         };
     })
 }
