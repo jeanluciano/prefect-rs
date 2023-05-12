@@ -17,7 +17,7 @@ enum TERMINAL_STATES  {
     FAILED,
     CANCELLED
 }
-#[derive(Debug)]
+#[derive(Debug,Deserialize,Serialize)]
 struct StateDetails {
     flow_run_id: Uuid,
     task_run_id: Uuid,

@@ -25,14 +25,7 @@ impl Parse for Args {
     }
 }
 
-// impl<F> Fn<(String)> for Task<F>
-// where
-//     F: FnMut(),
-// {
-//     extern "rust-call" fn call(&self, _args: ()) -> String {
-//         (self.callable)(_args)
-//     }
-// }
+
 
 fn transform_params(params: Punctuated<FnArg, Token![,]>) -> Punctuated<Ident, Token![,]> {
     // 1. Filter the params, so that only typed arguments remain
@@ -83,18 +76,23 @@ pub fn task(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let input_block = &input.block;
     let name = &input.sig.ident;
-    let attributes = &input.attrs;
-    let vis = &input.vis;
-    let constness = &input.sig.constness;
-    let unsafety = &input.sig.unsafety;
-    let abi = &input.sig.abi;
-    let generics = &input.sig.generics;
-    let output = &input.sig.output;
+
 
     TokenStream::from(quote! {
 
 
         let mut #inner_ident = |#closure_inputs| {
+            let task_meta_data = Task {
+                name: #name,
+                description: "Placeholder",
+                tags: Vec::new("prod","docker"),
+                cache_expiration: None,
+                retries: 0,
+                retry_delay_seconds: 0,
+                isasync: true,
+                task_key: "placeholder",
+                _dynamic_key: 0,
+            };
 
            return tokio::task::spawn(async #input_block)
 
@@ -152,13 +150,6 @@ pub fn flow(args: TokenStream, input: TokenStream) -> TokenStream {
     let input_block = &input.block;
 
     let name = &input.sig.ident;
-    let attributes = &input.attrs;
-    let vis = &input.vis;
-    let constness = &input.sig.constness;
-    let unsafety = &input.sig.unsafety;
-    let abi = &input.sig.abi;
-    let generics = &input.sig.generics;
-    let output = &input.sig.output;
 
     let excutor_name = &("_".to_owned() + &input.sig.ident.to_string());
     let flow_name = &input.sig.ident.to_string();
@@ -171,7 +162,8 @@ pub fn flow(args: TokenStream, input: TokenStream) -> TokenStream {
                 description: "placeholder description.",
                 timeout_seconds: None,
                 validate_parameters: false,
-            }
+            };
+            
             let flow_run_context = FlowRunContext::new(flow_metadata,)
 
             let exec = DedicatedExecutor::new(#excutor_name, 2);
@@ -181,46 +173,3 @@ pub fn flow(args: TokenStream, input: TokenStream) -> TokenStream {
     })
 }
 
-// impl<F> FnMut<(#type_tuple)> for Task<F>
-// where
-//     F: FnMut(#type_tuple) #output,
-// {
-//     extern "rust-call" fn call_mut(&mut self, _args: (#type_tuple)) -> i32 {
-//         let (#arg_tuple) = _args;
-//         (self.callable)(#arg_tuple)
-//     }
-// }
-
-// impl<F> FnOnce<(#type_tuple)> for Task<F>
-// where
-//     F: FnMut(#type_tuple) #output,
-// {
-//     type Output = i32;
-
-//     extern "rust-call" fn call_once(mut self, _args: (#type_tuple)) -> i32 {
-//         let (#arg_tuple) = _args;
-//         (self.callable)(#arg_tuple)
-//     }
-// }
-
-// impl<F> FnMut<(#type_tuple)> for Flow<F>
-//             where
-//                 F: FnMut(#type_tuple) #output,
-//             {
-//                 extern "rust-call" fn call_mut(&mut self, _args: (#type_tuple)) -> i32 {
-//                     let (#arg_tuple) = _args;
-//                     (self.callable)(#arg_tuple)
-//                 }
-//             }
-
-//             impl<F> FnOnce<(#type_tuple)> for Task<F>
-//             where
-//                 F: FnMut(#type_tuple) #output,
-//             {
-//                 type Output = i32;
-
-//                 extern "rust-call" fn call_once(mut self, _args: (#type_tuple)) -> i32 {
-//                     let (#arg_tuple) = _args;
-//                     (self.callable)(#arg_tuple)
-//                 }
-//             }

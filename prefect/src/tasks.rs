@@ -1,53 +1,64 @@
 use chrono::{DateTime, Utc};
-
-pub struct Task<F> {
-    task_fn: F,
-    name: String,
-    // description: String,
-    // tags: Vec<String>,
-    // cache_key_fn: fn(str) -> str,
-    // cache_expiration: DateTime<Utc>,
-    // retries: i32,
-    // retry_delay_seconds: f32,
-    // isasync: bool,
-    // task_key: String,
-    // _dynamic_key: i32,
+use md5::compute;
+type CacheFunc = fn(String) -> String;
+pub struct Task {
+    pub name: String,
+    pub description: String,
+    tags: Vec<String>,
+    cache_key_fn: Option<CacheFunc>,
+    cache_expiration: Option<DateTime<Utc>>,
+    retries: i32,
+    retry_delay_seconds: i32,
+    isasync: bool,
+    task_key: String,
+    pub _dynamic_key: i32,
 }
 
-trait Create {
-    fn new<F,P,R>(self) -> Task<F>;
-    fn get_and_update_dynamic_key(self) -> str;
-}
-
-impl<F> Create for Task<F> {
+impl Task {
     fn new(
+        self,
         name: String,
-        task_fn: F,
-        // description: String,
-        // tags: Vec<String>,
-        // cache_key_fn: fn(str) -> str,
-        // cache_expiration: DateTime<Utc>,
-        // retries: i32,
-        // retry_delay_seconds: f32,
-    ) -> Task<F> {
-        Task { 
-            name: name,
-            task_fn,
-            // description,
-            // tags,
-            // retries,
-            // cache_key_fn,
-            // cache_expiration,
-            // retry_delay_seconds,
-            // isasync: isasynctfunction(callable),
-            // task_key: stable_hash(name),
-            // _dynamic_key: 0
-         }
+        description: String,
+        tags: Option<Vec<String>>,
+        cache_expiration: Option<DateTime<Utc>>,
+        retries: i32,
+        retry_delay_seconds: i32,
+        isasync: bool
+    ) -> Task {
+
+        let tags = init_tags(tags);
+        let cache_key_fn = None;
+
+        let task_key = stable_hash(&name,tags.join(","));
+        let _dynamic_key = 0;
+        Self {
+            name,
+            description,
+            tags,
+            cache_expiration,
+            retries,
+            retry_delay_seconds,
+            isasync,
+            task_key,
+            _dynamic_key,
+            cache_key_fn
+        }
     }
-    fn get_and_update_dynamic_key(& mut self) -> str {
+    fn get_and_update_dynamic_key(&mut self) -> i32 {
         let current_key = self._dynamic_key;
         self._dynamic_key += 1;
         current_key
     }
 }
 
+fn init_tags(tags: Option<Vec<String>>) -> Vec<String> {
+    match tags {
+        Some(x) => x,
+        None => Vec::new()
+    }
+}
+
+fn stable_hash(name: &str, tags: String ) -> String{
+    let digest = md5::compute(format!("{}{}", name, tags));
+    format!("{:x}", digest )
+}
